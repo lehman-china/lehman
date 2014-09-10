@@ -1,108 +1,133 @@
-<!doctype html>
-<html lang="en">
+<html ng-app="">
 <head>
-  <meta charset="utf-8">
-  <title>jQuery UI 工具提示框（Tooltip） - 视频播放器</title>
-  <link rel="stylesheet" href="//apps.bdimg.com/libs/jqueryui/1.10.4/css/jquery-ui.min.css">
-  <script src="//apps.bdimg.com/libs/jquery/1.10.2/jquery.min.js"></script>
-  <script src="//apps.bdimg.com/libs/jqueryui/1.10.4/jquery-ui.min.js"></script>
-  <link rel="stylesheet" href="jqueryui/style.css">
-  <style>
-  .player {
-    width: 500px;
-    height: 300px;
-    border: 2px groove gray;
-    background: rgb(200, 200, 200);
-    text-align: center;
-    line-height: 300px;
-  }
-  .ui-tooltip {
-    border: 1px solid white;
-    background: rgba(20, 20, 20, 1);
-    color: white;
-  }
-  .set {
-    display: inline-block;
-  }
-  .notification {
-    position: absolute;
-    display: inline-block;
-    font-size: 2em;
-    padding: .5em;
-    box-shadow: 2px 2px 5px -2px rgba(0,0,0,0.5);
-  }
-  </style>
-  <script>
-  $(function() {
-    function notify( input ) {
-      var msg = "已选择 " + $.trim( input.data( "tooltip-title" ) || input.text() );
-      $( "<div>" )
-        .appendTo( document.body )
-        .text( msg )
-        .addClass( "notification ui-state-default ui-corner-bottom" )
-        .position({
-          my: "center top",
-          at: "center top",
-          of: window
-        })
-        .show({
-          effect: "blind"
-        })
-        .delay( 1000 )
-        .hide({
-          effect: "blind",
-          duration: "slow"
-        }, function() {
-          $( this ).remove();
-        });
-    }
- 
-    $( "button" ).each(function() {
-      var button = $( this ).button({
-        icons: {
-          primary: $( this ).data( "icon" )
-        },
-        text: !!$( this ).attr( "title" )
-      });
-      button.click(function() {
-        notify( button );
-      });
-    });
-    $( ".set" ).buttonset({
-      items: "button"
-    });
- 
-    $( document ).tooltip({
-      position: {
-        my: "center top",
-        at: "center bottom+5",
-      },
-      show: {
-        duration: "fast"
-      },
-      hide: {
-        effect: "hide"
-      }
-    });
-  });
-  </script>
+<link rel="stylesheet" href = "http://apps.bdimg.com/libs/bootstrap/3.2.0/css/bootstrap.min.css">
 </head>
-<body>
- 
-<div class="player">大家好,我是雷建军,2014年9月8日23:34:46</div>
-<div class="tools">
-  <span class="set">
-    <button data-icon="ui-icon-circle-arrow-n" title="我喜欢这个视频">喜欢</button>
-    <button data-icon="ui-icon-circle-arrow-s">我不喜欢这个视频</button>
-  </span>
-  <div class="set">
-    <button data-icon="ui-icon-circle-plus" title="添加到播放列表">添加到</button>
-    <button class="menu" data-icon="ui-icon-triangle-1-s">添加到收藏夹</button>
+
+<body ng-controller="userController">
+<div class="container">
+
+<h3>用户列表</h3>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>编辑</th>
+      <th>名</th>
+      <th>姓</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="user in users">
+      <td>
+        <button class="btn" onclick="editUser(user.id)">
+          <span class="glyphicon glyphicon-pencil"></span>编辑
+        </button>
+      </td>
+      <td>{{ user.fName }}</td>
+      <td>{{ user.lName }}</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr>
+<button class="btn btn-success" ng-click="editUser('new')">
+<span class="glyphicon glyphicon-user"></span>创建新用户
+</button>
+<hr>
+
+<h3 ng-show="edit">创建新用户:</h3>
+<h3 ng-hide="edit">编辑用户:</h3>
+
+<form class="form-horizontal">
+  <div class="form-group">
+    <label class="col-sm-2 control-label">名:</label>
+    <div class="col-sm-10">
+    <input type="text" ng-model="fName" ng-disabled="!edit" placeholder="名">
+    </div>
+  </div> 
+  <div class="form-group">
+    <label class="col-sm-2 control-label">姓:</label>
+    <div class="col-sm-10">
+    <input type="text" ng-model="lName" ng-disabled="!edit" placeholder="姓">
+    </div>
   </div>
-  <button title="分享这个视频">分享</button>
-  <button data-icon="ui-icon-alert">标记为不恰当</button>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">密码:</label>
+    <div class="col-sm-10">
+    <input type="password" ng-model="passw1" placeholder="密码">
+    </div>
+  </div>
+  <div class="form-group">
+    <label class="col-sm-2 control-label">重复密码:</label>
+    <div class="col-sm-10">
+    <input type="password" ng-model="passw2" placeholder="重复密码">
+    </div>
+  </div>
+</form>
+
+<hr>
+<button class="btn btn-success" ng-disabled="error || incomplete">
+<span class="glyphicon glyphicon-save"></span>  保存修改
+</button>
+
 </div>
- 
- 
+
+<script src= "http://apps.bdimg.com/libs/angular.js/1.2.15/angular.min.js"></script>
+<script>
+
+function userController($scope) {
+	$scope.fName = '';
+	$scope.lName = '';
+	$scope.passw1 = '';
+	$scope.passw2 = '';
+	$scope.users = [
+	{id:1, fName:'Hege',  lName:"Pege" },
+	{id:2, fName:'Kim',   lName:"Pim" },
+	{id:3, fName:'Sal',   lName:"Smith" },
+	{id:4, fName:'Jack',  lName:"Jones" },
+	{id:5, fName:'John',  lName:"Doe" },
+	{id:6, fName:'Peter', lName:"Pan" }
+	];
+	$scope.edit = true;
+	$scope.error = false;
+	$scope.incomplete = false;
+	
+	$scope.editUser = function(id) {
+	  if (id == 'new') {
+		$scope.edit = true;
+		$scope.incomplete = true;
+		$scope.fName = '';
+		$scope.lName = '';
+		} else {
+		$scope.edit = false;
+		$scope.fName = $scope.users[id-1].fName;
+		$scope.lName = $scope.users[id-1].lName;
+	  }
+	};
+	
+	$scope.$watch('passw1',function() {$scope.test();});
+	$scope.$watch('passw2',function() {$scope.test();});
+	$scope.$watch('fName', function() {$scope.test();});
+	$scope.$watch('lName', function() {$scope.test();});
+	
+	$scope.test = function() {
+	  if ($scope.passw1 !== $scope.passw2) {
+		$scope.error = true;
+		} else {
+		$scope.error = false;
+	  }
+	  $scope.incomplete = false;
+	  if ($scope.edit && (!$scope.fName.length ||
+	  !$scope.lName.length ||
+	  !$scope.passw1.length || !$scope.passw2.length)) {
+		   $scope.incomplete = true;
+	  }
+	};
+
+}
+
+</script>
+
 </body>
-</html>			
+</html>
+			
